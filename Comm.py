@@ -1,15 +1,20 @@
 from socket import *
 
+# Initialise la connexion avec le client Unity
+# -> Retourne la socket du client
 def init_connexion () :
-    connexion = socket (AF_INET, SOCK_STREAM)
-    connexion.bind (('localhost', 81))
-    connexion.listen (1)
-    client_socket, client_address = connexion.accept ()
+    sock = socket (AF_INET, SOCK_STREAM)
+    sock.bind (('localhost', 81))  # Choix du port arbitraire
+    sock.listen (1)                # Ecoute d'1 seul client
+    client_socket, client_address = sock.accept ()
+
     return client_socket
 
-def rcv_message (connexion) :
-    return connexion.recv (1024).decode ()
+# -> Retourne le message reçu du client au format string
+def rcv_message (client_socket) :
+    return client_socket.recv (1024).decode ()
 
-def close_connexion (connexion) :
-    connexion.close ()
+# Ferme la connexion avec le client
+def close_connexion (client_socket) :
+    client_socket.close ()
     print ("sock : connexion closed.")
