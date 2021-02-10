@@ -10,9 +10,14 @@ def init_connexion () :
 
     return client_socket
 
-# -> Retourne le message reçu du client au format string
+# -> Retourne le message reçu du client au format "string"
 def rcv_message (client_socket) :
     return client_socket.recv (1024).decode ()
+
+# <- message : au format string
+# Envois un message au client au format "bytes"
+def send_message (client_socket, message) :
+    client_socket.send (bytes(message, "utf-8"))
 
 # Ferme la connexion avec le client
 def close_connexion (client_socket) :
