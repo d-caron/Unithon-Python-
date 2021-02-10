@@ -3,11 +3,15 @@ import threading
 import Comm
 
 def wait_msg (connexion) :
-    # 1 - Attente du 1er message
-    msg = Comm.rcv_message (connexion)
-    
-    # 2 - Affichage du message reçu
-    print ("\nUnity sent >> " + msg)
+    while (True) :
+        # 1 - Attente du 1er message
+        msg = Comm.rcv_message (connexion)
+        
+        # 2 - Affichage du message reçu
+        print ("\nUnity sent >> " + msg)
+
+        # 3 - Proposer de répondre
+        print ("Please, type your message : ", end='', flush=True)
         
 
 def launch_server () :
@@ -18,9 +22,10 @@ def launch_server () :
     
     print ("I'm waiting a message from Unity client")
     print ("During this time, you can send a message to the Unity client")
-    msg = input ("Please, type your message : ")
 
-    Comm.send_message (connexion, msg)
+    while (True) :
+        msg = input ("Please, type your message : ")
+        Comm.send_message (connexion, msg)
 
 if __name__ == "__main__" :
     launch_server ()
