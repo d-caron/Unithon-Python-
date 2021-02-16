@@ -1,6 +1,6 @@
 import threading
 import Comm
-import sys
+import sys, os
 
 def wait_msg (connexion) :
 
@@ -14,13 +14,15 @@ def wait_msg (connexion) :
 
         # Si le message contient "Close_Unity", c'est que Unity c'est fermé alors on peut arrêter le serveur
         if (msg == "Close_Unity"):
-            print ("La socket n'est plus ouverte, taper \" reset \" si vous voulez la redemarrer ou \"exit\" pour quitter")
-            _thread.interrupt_main()
+            print ("Fermeture du serveur")
             socketIsOpen = False
             Comm.close_connexion(connexion)
-            sys.exit(0)
+
+            # Fermeture de l'application (thread + main) de façon brutal
+            os._exit(1)
 
         else :
+
             # 2 - Affichage du message reçu
             print ("\nUnity sent >> " + msg)
 
@@ -28,14 +30,11 @@ def wait_msg (connexion) :
             print ("Please, type your message: ", end='', flush=True)
             
 
-        
-        
-
 def launch_server () :
+    print ("Lancement du serveur Python")
+    
     # Variable qui indique si le programme doit continuer ou non
     keepRunning = True
-
-    print ("Lancement du serveur Python")
 
     # Initialitsation de la connexion
     connexion = Comm.init_connexion ()
@@ -47,32 +46,33 @@ def launch_server () :
     while (keepRunning) :
         # try pour savoir si la socket est toujours open sinon on quitte le script
         
-            msg = input ("Please, type your message: ")
+        msg = input ("Please, type your message: ")
 
-            # Si on tappe "reset" on relance la connexion et le thread 
-            if (msg == "reset") :
-                connexion = Comm.init_connexion ()
-                threading.Thread (target=wait_msg, args=(connexion,)).start()
+        # Si on tappe "reset" on relance la connexion et le thread 
+        if (msg == "reset") :
+            connexion = Comm.init_connexion ()
+            threading.Thread (target=wait_msg, args=(connexion,)).start()
 
-            # Si on tappe "exit" on ferme le programme
-            elif (msg == "exit") :
-                print("Sortie de l'application ")
-                if (keepRunning) :
-                    keepRunning = False
-                    try :
-                        Comm.send_message (connexion, "Close_Python")
-                        Comm.close_connexion(connexion)
-                    except :
-                        print ("Erreur : la socket n'est plus ouverte, taper \" reset \" si vous voulez la redemarrer ou \"exit\" pour quitter")
-                sys.exit(0)
+        # Si on tappe "exit" on ferme le programme
+        elif (msg == "exit") :
+            print("Sortie de l'application ")
 
-
-            # Sinon on envoie le message
-            else :
+            if (keepRunning) :
+                keepRunning = False
                 try :
-                    Comm.send_message (connexion, msg)
+                    Comm.send_message (connexion, "Close_Python")
+                    Comm.close_connexion(connexion)
                 except :
-                    print ("Erreur : la socket n'est plus ouverte, taper \" reset \" si vous voulez la redemarrer ou \"exit\" pour quitter")
+                    print ("Erreur : la socket n'est plus ouverte, taper \"reset\" si vous voulez la redemarrer ou \"exit\" pour quitter")
+            sys.exit(0)
+
+
+        # Sinon on envoie le message
+        else :
+            try :
+                Comm.send_message (connexion, msg)
+            except :
+                print ("Erreur : la socket n'est plus ouverte, taper \"reset\" si vous voulez la redemarrer ou \"exit\" pour quitter")
 
         
 
