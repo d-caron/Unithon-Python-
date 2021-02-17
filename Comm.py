@@ -17,7 +17,6 @@ def init_connexion () :
 def rcv_message (client_socket) :
     try:
         msg = client_socket.recv (1024).decode ()
-        print(msg)
         return msg
     except:
         # Si on a une erreur, c'est problablement parce que la socket est fermé, alors on simule la reception du message "Close_Unity"
