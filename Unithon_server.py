@@ -34,10 +34,10 @@ def wait_msg (connexion) :
                 
             else :
                 # 2 - Affichage du message reçu
-                print ("Unity sent >> " + receiveMsg)
+                print ("\nUnity envoie >> " + receiveMsg)
 
                 # 3 - Proposer de répondre
-                print ("Please, type your message: ", end='', flush=True)
+                print ("Entrez votre message ici : ", end='', flush=True)
             
 
 def launch_server () :
@@ -54,12 +54,12 @@ def launch_server () :
     
 
     print ("En attente d'un message de Unity")
-    print ("Pendant ce temps, vous pouvez envoyer un message à Unity")
+    print ("Pendant ce temps, vous pouvez envoyer un message a Unity")
 
     while (keepRunning) :
         # try pour savoir si la socket est toujours open sinon on quitte le script
         
-        msg = input ("Please, type your message: ")
+        msg = input ("Entrez votre message ici : ")
 
         # Si on tappe "reset" on relance la connexion et le thread 
         # if (msg == "reset") :
@@ -73,7 +73,7 @@ def launch_server () :
             if (keepRunning) :
                 keepRunning = False
                 try :
-                    Comm.send_message (connexion, "Close_Python")
+                    # Comm.send_message (connexion, "Close_Python")
                     Comm.close_connexion(connexion)
                 except :
                     # print ("Erreur : la socket n'est plus ouverte, taper \"reset\" si vous voulez la redemarrer ou \"exit\" pour quitter")

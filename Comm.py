@@ -32,7 +32,7 @@ def send_message (client_socket, message) :
 def close_connexion (client_socket) :
     try:
         send_message(client_socket, "Close_Python")
-        print("fermeture de la socket")
+        print("Fermeture de la socket")
         client_socket.close ()
         # Force la fermeture du script
         sys.exit(0)
