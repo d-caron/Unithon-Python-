@@ -18,6 +18,7 @@ def launch_server () :
     # Initialitsation de la connexion
     connexion = Comm.init_connexion ()
 
+    # Lancement du thread d'écoute
     threading.Thread (target=wait_msg, args=(connexion,)).start()
     
     print ("I'm waiting a message from Unity client")
