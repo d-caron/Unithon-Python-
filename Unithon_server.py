@@ -53,8 +53,8 @@ def launch_server () :
     
     
 
-    print ("I'm waiting a message from Unity client")
-    print ("During this time, you can send a message to the Unity client")
+    print ("En attente d'un message de Unity")
+    print ("Pendant ce temps, vous pouvez envoyer un message à Unity")
 
     while (keepRunning) :
         # try pour savoir si la socket est toujours open sinon on quitte le script
