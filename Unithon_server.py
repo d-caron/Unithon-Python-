@@ -1,6 +1,7 @@
 import threading
 import Comm
 import sys, os
+import time
 
 def wait_msg (connexion) :
 
@@ -10,11 +11,11 @@ def wait_msg (connexion) :
     while socketIsOpen :
 
         # 1 - Attente du 1er message
-        msg = Comm.rcv_message (connexion)
+        receiveMsg = Comm.rcv_message (connexion)
 
         # Si le message contient "Close_Unity", c'est que Unity c'est fermé alors on peut arrêter le serveur
-        if (msg == "Close_Unity"):
-            print ("Fermeture du serveur")
+        if (receiveMsg == "Close_Unity"):
+            print ("Fermeture du serveur\n", flush=True)
             socketIsOpen = False
             Comm.close_connexion(connexion)
 
@@ -22,16 +23,26 @@ def wait_msg (connexion) :
             os._exit(1)
 
         else :
+            # Quand Unity perd la connexion sans avoir pu envoyer de message, Python boucle en pensant recevoir des chaines vides, si c'est le cas on ferme directement la connection
+            if (receiveMsg == ""):
+                print("Fermeture du serveur pour cause de plantage Unity\n", flush=True)
+                socketIsOpen = False
+                Comm.close_connexion(connexion)
 
-            # 2 - Affichage du message reçu
-            print ("\nUnity sent >> " + msg)
+                # Fermeture de l'application (thread + main) de façon brutal
+                os._exit(1)
+                
+            else :
+                # 2 - Affichage du message reçu
+                print ("Unity sent >> " + receiveMsg)
 
-            # 3 - Proposer de répondre
-            print ("Please, type your message: ", end='', flush=True)
+                # 3 - Proposer de répondre
+                print ("Please, type your message: ", end='', flush=True)
             
 
 def launch_server () :
-    print ("Lancement du serveur Python")
+    print ("Lancement du serveur Python", flush=True)
+    print ("Vous pouvez ecrire \"exit\" pour quitter le serveur", flush=True)
     
     # Variable qui indique si le programme doit continuer ou non
     keepRunning = True
@@ -40,6 +51,8 @@ def launch_server () :
     connexion = Comm.init_connexion ()
     threading.Thread (target=wait_msg, args=(connexion,)).start()
     
+    
+
     print ("I'm waiting a message from Unity client")
     print ("During this time, you can send a message to the Unity client")
 
@@ -49,12 +62,12 @@ def launch_server () :
         msg = input ("Please, type your message: ")
 
         # Si on tappe "reset" on relance la connexion et le thread 
-        if (msg == "reset") :
-            connexion = Comm.init_connexion ()
-            threading.Thread (target=wait_msg, args=(connexion,)).start()
+        # if (msg == "reset") :
+        #     connexion = Comm.init_connexion ()
+        #     threading.Thread (target=wait_msg, args=(connexion,)).start()
 
         # Si on tappe "exit" on ferme le programme
-        elif (msg == "exit") :
+        if (msg == "exit") :
             print("Sortie de l'application ")
 
             if (keepRunning) :
@@ -63,7 +76,8 @@ def launch_server () :
                     Comm.send_message (connexion, "Close_Python")
                     Comm.close_connexion(connexion)
                 except :
-                    print ("Erreur : la socket n'est plus ouverte, taper \"reset\" si vous voulez la redemarrer ou \"exit\" pour quitter")
+                    # print ("Erreur : la socket n'est plus ouverte, taper \"reset\" si vous voulez la redemarrer ou \"exit\" pour quitter")
+                    print ("Erreur : vous pouvez écrire \"exit\" pour quitter le serveur")
             sys.exit(0)
 
 
@@ -72,7 +86,8 @@ def launch_server () :
             try :
                 Comm.send_message (connexion, msg)
             except :
-                print ("Erreur : la socket n'est plus ouverte, taper \"reset\" si vous voulez la redemarrer ou \"exit\" pour quitter")
+                # print ("Erreur : la socket n'est plus ouverte, taper \"reset\" si vous voulez la redemarrer ou \"exit\" pour quitter")
+                print ("Erreur : vous pouvez écrire \"exit\" pour quitter le serveur")
 
         
 

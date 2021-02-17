@@ -32,6 +32,7 @@ def send_message (client_socket, message) :
 # Ferme la connexion avec le client
 def close_connexion (client_socket) :
     try:
+        send_message(client_socket, "Close_Python")
         print("fermeture de la socket")
         client_socket.close ()
         # Force la fermeture du script
@@ -39,3 +40,12 @@ def close_connexion (client_socket) :
     except:
         # En ignore si la socket est déjà ferme
         return ""
+
+#  Censé check si la connexion à la socket est fonctionnelle, mais renvoie False à chaque fois
+# def checkConnection(client_socket) :
+#     result = client_socket.connect_ex(('localhost', 1024))
+#     if result == 0:
+#         return True
+#     else:
+#         return False
+
