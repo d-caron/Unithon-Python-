@@ -2,6 +2,7 @@ import threading
 import Comm
 import sys, os
 import time
+import Interpreter
 
 def wait_msg (connexion) :
 
@@ -26,7 +27,7 @@ def wait_msg (connexion) :
             # Quand Unity perd la connexion sans avoir pu envoyer de message, Python boucle en pensant recevoir des chaines vides, si c'est le cas on ferme directement la connection
             if (receiveMsg == ""):
                 print("Fermeture du serveur pour cause de plantage Unity\n", flush=True)
-                socketIsOpen = False
+                
                 Comm.close_connexion(connexion)
 
                 # Fermeture de l'application (thread + main) de façon brutal
@@ -85,6 +86,12 @@ def launch_server () :
         else :
             try :
                 Comm.send_message (connexion, msg)
+                jsonMessage = Interpreter.command_interpreter(msg)
+                
+                if (jsonMessage):
+                    print(jsonMessage)
+                    Comm.send_message (connexion, jsonMessage)
+            
             except :
                 # print ("Erreur : la socket n'est plus ouverte, taper \"reset\" si vous voulez la redemarrer ou \"exit\" pour quitter")
                 print ("Erreur : vous pouvez écrire \"exit\" pour quitter le serveur")
