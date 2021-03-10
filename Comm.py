@@ -1,4 +1,5 @@
 from socket import *
+import DAO
 
 import sys
 # Initialise la connexion avec le client Unity
@@ -15,12 +16,16 @@ def init_connexion () :
 
 # -> Retourne le message reçu du client au format "string"
 def rcv_message (client_socket) :
+    dao = DAO.DAO ()
+
     try:
         msg = client_socket.recv (1024).decode ()
-        return msg
+        return dao.deserialize (msg)
     except:
         # Si on a une erreur, c'est problablement parce que la socket est fermé, alors on simule la reception du message "Close_Unity"
-        return "Close_Unity"
+        dao.type = "system"
+        dao.action = "close"
+        return dao
 
 
 # <- message : au format string

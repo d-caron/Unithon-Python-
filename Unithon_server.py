@@ -14,7 +14,7 @@ def wait_msg (connexion) :
         receiveMsg = Comm.rcv_message (connexion)
 
         # Si le message contient "Close_Unity", c'est que Unity c'est fermé alors on peut arrêter le serveur
-        if (receiveMsg == "Close_Unity"):
+        if (receiveMsg.type == "system" and receiveMsg.action == "close"):
             print ("Fermeture du serveur\n", flush=True)
             socketIsOpen = False
             Comm.close_connexion(connexion)
@@ -34,7 +34,7 @@ def wait_msg (connexion) :
                 
             else :
                 # 2 - Affichage du message reçu
-                print ("\nUnity envoie >> " + receiveMsg)
+                print ("\nUnity envoie >> " + receiveMsg.serialize ())
 
                 # 3 - Proposer de répondre
                 print ("Entrez votre message ici : ", end='', flush=True)
