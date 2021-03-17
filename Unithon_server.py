@@ -3,6 +3,7 @@ import Comm
 import sys, os
 import time
 import Interpreter
+import json
 
 def wait_msg (connexion) :
 
@@ -27,7 +28,7 @@ def wait_msg (connexion) :
             # Quand Unity perd la connexion sans avoir pu envoyer de message, Python boucle en pensant recevoir des chaines vides, si c'est le cas on ferme directement la connection
             if (receiveMsg == ""):
                 print("Fermeture du serveur pour cause de plantage Unity\n", flush=True)
-                
+                socketIsOpen = False
                 Comm.close_connexion(connexion)
 
                 # Fermeture de l'application (thread + main) de façon brutal
@@ -85,14 +86,17 @@ def launch_server () :
         # Sinon on envoie le message
         else :
             try :
-                Comm.send_message (connexion, msg)
+
                 jsonMessage = Interpreter.command_interpreter(msg)
-                
-                if (jsonMessage):
-                    print(jsonMessage)
-                    Comm.send_message (connexion, jsonMessage)
             
-            except :
+                
+                jsonMessage2=json.dumps(jsonMessage)
+                print("hello",jsonMessage2)
+                Comm.send_message (connexion, msg)
+                Comm.send_message (connexion, jsonMessage2)
+            
+            except Exception as msg :
+                print( msg)
                 # print ("Erreur : la socket n'est plus ouverte, taper \"reset\" si vous voulez la redemarrer ou \"exit\" pour quitter")
                 print ("Erreur : vous pouvez écrire \"exit\" pour quitter le serveur")
 
@@ -100,3 +104,4 @@ def launch_server () :
 
 if __name__ == "__main__" :
     launch_server ()
+    
