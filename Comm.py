@@ -31,7 +31,9 @@ def rcv_message (client_socket) :
 # <- message : au format string
 # Envois un message au client au format "bytes"
 def send_message (client_socket, message) :
-    client_socket.send (bytes(message, "utf-8"))
+    client_socket.send (bytes(message, encoding="utf-8"))
+    #client_socket.sendall(bytes(message,encoding="utf-8"))
+
 
 # Ferme la connexion avec le client
 def close_connexion (client_socket) :

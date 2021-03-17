@@ -2,6 +2,8 @@ import threading
 import Comm
 import sys, os
 import time
+import Interpreter
+import json
 
 def wait_msg (connexion) :
 
@@ -84,8 +86,17 @@ def launch_server () :
         # Sinon on envoie le message
         else :
             try :
+
+                jsonMessage = Interpreter.command_interpreter(msg)
+            
+                
+                jsonMessage2=json.dumps(jsonMessage)
+                print("hello",jsonMessage2)
                 Comm.send_message (connexion, msg)
-            except :
+                Comm.send_message (connexion, jsonMessage2)
+            
+            except Exception as msg :
+                print( msg)
                 # print ("Erreur : la socket n'est plus ouverte, taper \"reset\" si vous voulez la redemarrer ou \"exit\" pour quitter")
                 print ("Erreur : vous pouvez écrire \"exit\" pour quitter le serveur")
 
@@ -93,3 +104,4 @@ def launch_server () :
 
 if __name__ == "__main__" :
     launch_server ()
+    
