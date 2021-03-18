@@ -1,99 +1,90 @@
-import json
+import DAO
 
-def command_interpreter(message): #fonction qui détecte les commandes et appelle la fonction build_json avec le paramètre correspondant
-    
-    
-    words=message.split(' ') #on sépare les mots 
-    jsonMessage = None
+def command_interpreter(message): #fonction qui détecte les commandes et appelle la fonction build_msg avec le paramètre correspondant
+    words=message.split(' ') #on sépare les mots
     listOfCharacters = ["Michel","Ugo"] #recevoir la liste complète des IA et tester si le paramètre IA2 est une IA. Si ce n'est pas une IA, alors c'est un lieu
 
-    if(words[0] == "cmd" ): 
+    msg = build_msg (words, listOfCharacters)  
+    return msg   
+
+
+def build_msg(words, listOfCharacters):
+    msg = DAO.DAO ()
+    msg.type = words[0]
+
+    if len(words) > 1 :
+        if msg.type == "cmd" :
+            return cmd_handler (words[1:], listOfCharacters, msg)
+
+        elif msg.type == "sys":
+            return sys_handler (words[1:], msg)
+
+        else :
+            print ("ERR > Veuillez renseigner un type d'action valide")
+
+    else :
+        print ("ERR > Veuillez renseigner une action valide")
+
+
+# GESTION DES COMMANDES
+
+def cmd_handler (cmd, listOfCharacters, msg) :
+    msg.action = cmd[0]
+
+    if msg.action == "deplacer" :
+        return cmd_deplacer (cmd[1:], listOfCharacters, msg)
         
-        if(len(words) != 4):
-            
-            print("Usage : cmd action <IA1> <IA2> ou cmd action <IA1> <lieu>")
-        
-        else:
-           
-            if(not words[2] in listOfCharacters):
-                
-                print("Le troisième argument n'est pas un PNJ")
-            
-            else:
-   
-                if(not words[3] in listOfCharacters and words[1] == "discuter"): #si la commande est discuter mais que le quatrième argument est autre chose qu'un PNJ
-                
-                    print("Une personne ne peut pas discuter toute seule !")
+    elif msg.action == "discuter" :
+        return cmd_discuter (cmd[1:], listOfCharacters, msg)
 
-                else:
+    print ("ERR > " + cmd[0] + " n'est pas une commande \"cmd\" valide")
 
-                    jsonMessage = build_json(words,listOfCharacters)
+def sys_handler (sys, msg) :
+    msg.action = sys[0]
 
-    elif(words[0] == "sys" ):
-        
-        if (words[1] == "load" and len(words != 3)):
+    if msg.action == "exit" :
+        return msg
 
-            print("Usage : sys load map")   
-
-        elif(len(words) != 2): #si la comande ne contient pas exactement 2 mots, la commande système n'est pas valide
-            
-            print("Usage : sys action")
-        
-        else:
-            
-            jsonMessage = build_json(words,listOfCharacters)
-            
-    return jsonMessage        
+    print ("ERR > " + sys[0] + " n'est pas une commande \"sys\" valide")
 
 
-def build_json(words,listOfCharacters):
+# GESTIONS : TYPE CMD
+
+def cmd_deplacer (cmd, listOfCharacters, msg) :
+    if len (cmd) != 2 :
+        print ("ERR > Usage : cmd deplacer <IA1> <IA2>")
+    else :
+        if cmd[0] in listOfCharacters :
+            msg.characters.append(cmd[0])
+
+            if cmd[1] in listOfCharacters :
+                msg.characters.append(cmd[1])
+
+                return msg
+            else :
+                print ("ERR > Le déplacement vers un objet autre qu'un personnage n'est pas encore possible (Coming soon !)")
     
-    if(words[0] == "cmd"):
-       
-        if (words[2] in listOfCharacters): #si le troisième argument est un PNJ, alors l'attribut monde est null
-            
-            Message = {
-                "Message":{
-                    "type" : words[0],
-                    "action" : words[1],
-                    "id_personnages" : words[2:],
-                    "monde" : None
-                }
-            }
+        else : 
+            print ("ERR > Usage : cmd deplacer <IA1> <IA2>")
 
-        else: #si le troisième argument n'est pas un PNJ alors c'est un lieu
-            
-            Message = {
-                "Message":{
-                    "type" : words[0],
-                    "action" : words[1],
-                    "id_personnages" : None,
-                    "monde" : words[2]
-                }
-            }
+def cmd_discuter (cmd, listOfCharacters, msg) :
+    if len (cmd) != 2 :
+        print ("ERR > Usage : cmd discuter <IA1> <IA2>")
+    else :
+        if cmd[0] in listOfCharacters :
+            msg.characters.append(cmd[0])
 
-    elif(words[0] == "sys" and words[2] == None):
-        
-        Message = {
-            "Message":{
-                "type" : words[0],
-                "action" : words[1],
-                "id_personnages" : None,
-                "monde" : None
-                }
-        } 
-    else: #c'est une commande load donc il y a un argument monde
-          Message = {
-            "Message":{
-                "type" : words[0],
-                "action" : words[1],
-                "id_personnages" : None,
-                "monde" : words[2]
-                }
-        }
+            if cmd[1] in listOfCharacters :
+                msg.characters.append(cmd[1])
 
-    return Message    
+                return msg
+            else :
+                print ("ERR > " + cmd[1] + " n'est pas un identifiant d'IA valide")
+    
+        else : 
+            print ("ERR > " + cmd[0] + " n'est pas un identifiant d'IA valide")
 
 
+# GESTION : TYPE SYS
 
-
+# (Rien ici pour le moment)

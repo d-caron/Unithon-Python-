@@ -4,6 +4,7 @@ import sys, os
 import time
 import Interpreter
 import json
+import DAO
 
 def wait_msg (connexion) :
 
@@ -14,9 +15,12 @@ def wait_msg (connexion) :
 
         # 1 - Attente du 1er message
         receiveMsg = Comm.rcv_message (connexion)
+        dao = DAO.DAO ()
+        dao.deserialize (receiveMsg)
+
 
         # Si le message contient "Close_Unity", c'est que Unity c'est fermé alors on peut arrêter le serveur
-        if (receiveMsg.type == "system" and receiveMsg.action == "close"):
+        if (dao.type == "sys" and dao.action == "exit"):
             print ("Fermeture du serveur\n", flush=True)
             socketIsOpen = False
             Comm.close_connexion(connexion)
@@ -26,7 +30,7 @@ def wait_msg (connexion) :
 
         else :
             # Quand Unity perd la connexion sans avoir pu envoyer de message, Python boucle en pensant recevoir des chaines vides, si c'est le cas on ferme directement la connection
-            if (receiveMsg == ""):
+            if (dao == ""):
                 print("Fermeture du serveur pour cause de plantage Unity\n", flush=True)
                 socketIsOpen = False
                 Comm.close_connexion(connexion)
@@ -36,7 +40,7 @@ def wait_msg (connexion) :
                 
             else :
                 # 2 - Affichage du message reçu
-                print ("\nUnity envoie >> " + receiveMsg.serialize ())
+                print ("\nUnity envoie >> " + dao.serialize ())
 
                 # 3 - Proposer de répondre
                 print ("Entrez votre message ici : ", end='', flush=True)
@@ -68,39 +72,11 @@ def launch_server () :
         #     connexion = Comm.init_connexion ()
         #     threading.Thread (target=wait_msg, args=(connexion,)).start()
 
-        # Si on tappe "exit" on ferme le programme
-        if (msg == "exit") :
-            print("Sortie de l'application ")
-
-            if (keepRunning) :
-                keepRunning = False
-                try :
-                    # Comm.send_message (connexion, "Close_Python")
-                    Comm.close_connexion(connexion)
-                except :
-                    # print ("Erreur : la socket n'est plus ouverte, taper \"reset\" si vous voulez la redemarrer ou \"exit\" pour quitter")
-                    print ("Erreur : vous pouvez écrire \"exit\" pour quitter le serveur")
-            sys.exit(0)
-
-
-        # Sinon on envoie le message
-        else :
-            try :
-
-                jsonMessage = Interpreter.command_interpreter(msg)
-            
-                
-                jsonMessage2=json.dumps(jsonMessage)
-                print("hello",jsonMessage2)
-                Comm.send_message (connexion, msg)
-                Comm.send_message (connexion, jsonMessage2)
-            
-            except Exception as msg :
-                print( msg)
-                # print ("Erreur : la socket n'est plus ouverte, taper \"reset\" si vous voulez la redemarrer ou \"exit\" pour quitter")
-                print ("Erreur : vous pouvez écrire \"exit\" pour quitter le serveur")
-
-        
+        dao = Interpreter.command_interpreter(msg)
+        if dao != None :
+            dao_str = dao.serialize ()
+            print (dao_str)
+            Comm.send_message (connexion, dao_str)        
 
 if __name__ == "__main__" :
     launch_server ()

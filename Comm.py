@@ -19,7 +19,7 @@ def rcv_message (client_socket) :
     dao = DAO.DAO ()
 
     try:
-        msg = client_socket.recv (1024).decode ()
+        return client_socket.recv (1024).decode ()
         return dao.deserialize (msg)
     except:
         # Si on a une erreur, c'est problablement parce que la socket est fermé, alors on simule la reception du message "Close_Unity"
