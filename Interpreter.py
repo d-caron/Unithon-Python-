@@ -1,20 +1,21 @@
 import DAO
 
-def command_interpreter(message): #fonction qui détecte les commandes et appelle la fonction build_msg avec le paramètre correspondant
-    words=message.split(' ') #on sépare les mots
-    listOfCharacters = ["Michel","Ugo"] #recevoir la liste complète des IA et tester si le paramètre IA2 est une IA. Si ce n'est pas une IA, alors c'est un lieu
+def command_interpreter(message, characters, regions): #fonction qui détecte les commandes et appelle la fonction build_msg avec le paramètre correspondant
+    words=message.split(' ')
+    listOfCharacters = characters   # Liste des personnages
+    listOfRegions = regions         # Liste des régions
 
-    msg = build_msg (words, listOfCharacters)  
+    msg = build_msg (words, listOfCharacters, listOfRegions)  
     return msg   
 
 
-def build_msg(words, listOfCharacters):
+def build_msg(words, listOfCharacters, listOfRegions):
     msg = DAO.DAO ()
     msg.type = words[0]
 
     if len(words) > 1 :
         if msg.type == "cmd" :
-            return cmd_handler (words[1:], listOfCharacters, msg)
+            return cmd_handler (words[1:], listOfCharacters, listOfRegions, msg)
 
         elif msg.type == "sys":
             return sys_handler (words[1:], msg)
@@ -28,11 +29,11 @@ def build_msg(words, listOfCharacters):
 
 # GESTION DES COMMANDES
 
-def cmd_handler (cmd, listOfCharacters, msg) :
+def cmd_handler (cmd, listOfCharacters, listOfRegions, msg) :
     msg.action = cmd[0]
 
     if msg.action == "deplacer" :
-        return cmd_deplacer (cmd[1:], listOfCharacters, msg)
+        return cmd_deplacer (cmd[1:], listOfCharacters, listOfRegions, msg)
         
     elif msg.action == "discuter" :
         return cmd_discuter (cmd[1:], listOfCharacters, msg)
@@ -47,10 +48,9 @@ def sys_handler (sys, msg) :
 
     print ("ERR > " + sys[0] + " n'est pas une commande \"sys\" valide")
 
-
 # GESTIONS : TYPE CMD
 
-def cmd_deplacer (cmd, listOfCharacters, msg) :
+def cmd_deplacer (cmd, listOfCharacters, listOfRegions, msg) :
     if len (cmd) != 2 :
         print ("ERR > Usage : cmd deplacer <IA1> <IA2>")
     else :
@@ -61,8 +61,14 @@ def cmd_deplacer (cmd, listOfCharacters, msg) :
                 msg.characters.append(cmd[1])
 
                 return msg
+
+            elif cmd[1] in listOfRegions :
+                msg.world.regions.append (cmd[1])
+
+                return msg
             else :
-                print ("ERR > Le déplacement vers un objet autre qu'un personnage n'est pas encore possible (Coming soon !)")
+                msg.world.regions.append (cmd[1])
+                print ("ERR > Destination non valide")
     
         else : 
             print ("ERR > Usage : cmd deplacer <IA1> <IA2>")

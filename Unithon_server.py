@@ -5,22 +5,26 @@ import time
 import Interpreter
 import json
 import DAO
+import Msg_manager
+
+listOfCharacters = []
+listOfRegions = []
 
 def wait_msg (connexion) :
 
     socketIsOpen = True
 
-    # Tant que la socket est ouverte on l'écoute
     while socketIsOpen :
 
-        # 1 - Attente du 1er message
-        receiveMsg = Comm.rcv_message (connexion)
-        dao = DAO.DAO ()
-        dao.deserialize (receiveMsg)
+        # Attente d'un message
+        dao = Comm.rcv_message (connexion)
+        action = Msg_manager.recv_handler (dao, listOfCharacters, listOfRegions)
+        print ("characters")
+        print (listOfCharacters)
 
 
-        # Si le message contient "Close_Unity", c'est que Unity c'est fermé alors on peut arrêter le serveur
-        if (dao.type == "sys" and dao.action == "exit"):
+        # ACTION : Fermeture de l'application
+        if (action == "exit"):
             print ("Fermeture du serveur\n", flush=True)
             socketIsOpen = False
             Comm.close_connexion(connexion)
@@ -28,22 +32,21 @@ def wait_msg (connexion) :
             # Fermeture de l'application (thread + main) de façon brutal
             os._exit(1)
 
-        else :
-            # Quand Unity perd la connexion sans avoir pu envoyer de message, Python boucle en pensant recevoir des chaines vides, si c'est le cas on ferme directement la connection
-            if (dao == ""):
-                print("Fermeture du serveur pour cause de plantage Unity\n", flush=True)
-                socketIsOpen = False
-                Comm.close_connexion(connexion)
+        # ACTION : Plantage de l'application
+        elif (action == "error"):
+            print("Fermeture du serveur pour cause de plantage Unity\n", flush=True)
+            socketIsOpen = False
+            Comm.close_connexion(connexion)
 
-                # Fermeture de l'application (thread + main) de façon brutal
-                os._exit(1)
+            # Fermeture de l'application (thread + main) de façon brutal
+            os._exit(1)
                 
-            else :
-                # 2 - Affichage du message reçu
-                print ("\nUnity envoie >> " + dao.serialize ())
 
-                # 3 - Proposer de répondre
-                print ("Entrez votre message ici : ", end='', flush=True)
+        # Affichage du message reçu
+        print ("\nUnity envoie >> " + dao.serialize ())
+
+        # Proposer de répondre
+        print ("Entrez votre message ici : ", end='', flush=True)
             
 
 def launch_server () :
@@ -72,7 +75,7 @@ def launch_server () :
         #     connexion = Comm.init_connexion ()
         #     threading.Thread (target=wait_msg, args=(connexion,)).start()
 
-        dao = Interpreter.command_interpreter(msg)
+        dao = Interpreter.command_interpreter(msg, listOfCharacters, listOfRegions)
         if dao != None :
             dao_str = dao.serialize ()
             print (dao_str)
