@@ -7,80 +7,78 @@ import json
 import DAO
 import Msg_manager
 
-listOfCharacters = []
-listOfRegions = []
+list_of_characters = []
+list_of_regions = []
+
 
 def wait_msg (connexion) :
+    """
+    @do :       Attend un message en boucle sur la connexion passé en 
+                parametre et l'envoi au gestionnaire de message. 
+                Gere aussi l'extinction du serveur si elle est demande 
+                ou s'il y a une erreur.
+    @args :     connexion -> Connection qu'il faut ecouter
+    @return :   None
+    """
 
-    socketIsOpen = True
+    socket_is_open = True
 
-    while socketIsOpen :
+    while socket_is_open :
 
         # Attente d'un message
         dao = Comm.rcv_message (connexion)
-        action = Msg_manager.recv_handler (dao, listOfCharacters, listOfRegions)
-        print ("characters")
-        print (listOfCharacters)
-
+        action = Msg_manager.recv_handler (dao, list_of_characters, list_of_regions)
 
         # ACTION : Fermeture de l'application
         if (action == "exit"):
-            print ("Fermeture du serveur\n", flush=True)
-            socketIsOpen = False
+            print ("Demande d'extinction du server\n", flush=True)
+            socket_is_open = False
             Comm.close_connexion(connexion)
 
-            # Fermeture de l'application (thread + main) de façon brutal
             os._exit(1)
 
         # ACTION : Plantage de l'application
         elif (action == "error"):
-            print("Fermeture du serveur pour cause de plantage Unity\n", flush=True)
-            socketIsOpen = False
+            print("Erreur : Fermeture du serveur\n", flush=True)
+            socket_is_open = False
             Comm.close_connexion(connexion)
 
-            # Fermeture de l'application (thread + main) de façon brutal
             os._exit(1)
-                
-
-        # Affichage du message reçu
-        print ("\nUnity envoie >> " + dao.serialize ())
-
-        # Proposer de répondre
-        print ("Entrez votre message ici : ", end='', flush=True)
-            
+           
 
 def launch_server () :
-    print ("Lancement du serveur Python", flush=True)
-    print ("Vous pouvez ecrire \"exit\" pour quitter le serveur", flush=True)
+    """
+    @do :       Lance le serveur python Unithon et envoi les commandes
+                saisies par l'utilisateur a l'interpreteur de commande
+                puis au client Unity, si elles sont correctes.
+    @args :     None
+    @return :   None
+    """
+
+    # Message d'ouverture du serveur
+    print ("Lancement du serveur Unithon.", flush=True)
+    print ("Tentative de connection au client...", flush=True)
     
     # Variable qui indique si le programme doit continuer ou non
-    keepRunning = True
+    keep_running = True
 
     # Initialitsation de la connexion
     connexion = Comm.init_connexion ()
     threading.Thread (target=wait_msg, args=(connexion,)).start()
-    
-    
 
-    print ("En attente d'un message de Unity")
-    print ("Pendant ce temps, vous pouvez envoyer un message a Unity")
+    print ("Connexion reussie, bienvenue sur UNITHON !", flush=True)
+    print ("Pour obtenir de l'aide a propos de l'utilisation de ce service, tapez : \"help\".", flush=True)
+    print ("Pour fermer le serveur, tapez : \"sys exit\".", flush=True)
 
-    while (keepRunning) :
-        # try pour savoir si la socket est toujours open sinon on quitte le script
-        
-        msg = input ("Entrez votre message ici : ")
+    # Tant que le programme tourne
+    while (keep_running) :        
+        msg = input ("Entrez votre commande ici : ")
 
-        # Si on tappe "reset" on relance la connexion et le thread 
-        # if (msg == "reset") :
-        #     connexion = Comm.init_connexion ()
-        #     threading.Thread (target=wait_msg, args=(connexion,)).start()
-
-        dao = Interpreter.command_interpreter(msg, listOfCharacters, listOfRegions)
+        dao = Interpreter.command_interpreter(msg, list_of_characters, list_of_regions)
         if dao != None :
             dao_str = dao.serialize ()
-            print (dao_str)
             Comm.send_message (connexion, dao_str)        
+
 
 if __name__ == "__main__" :
     launch_server ()
-    
