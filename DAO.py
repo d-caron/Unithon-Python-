@@ -3,29 +3,36 @@ import json
 
 class DAO :
     def __init__ (self) :
+        "Constcteur"
         self.type = None
         self.action = None
         self.characters = []
         self.world = World ()
 
-    """ serialize
-
-    Sérialise l'objet python au format JSON
     
-    retour : Une String représentant l'objet au format JSON
-    """
     def serialize (self) :
-        self.world = self.world.get_dict ()
-        return json.dumps (self.__dict__, indent=2)
+        """
+        @do :       Sérialise l'objet python au format JSON
+        @args :     None
+        @return :   String -> l'objet au format JSON
+        """
 
-    """ deserialize
+        world = self.world
+        self.world = self.world.get_dict ()
+        json_str = json.dumps (self.__dict__, indent=2)
+        self.world = world
+        
+        return json_str
+
     
-    Désérialise la string au format JSON 
-    et stoque les informations dens cet objet
-    
-    retour : L'objet est retourné
-    """
     def deserialize (self, json_dao) :
+        """    
+        @do :       Désérialise la string au format JSON 
+                    et stoque les informations dans cet objet
+        @args :     String json_dao -> objet au format json
+        @return :   DAO -> L'objet est retourné
+        """
+
         data = json.loads (json_dao)
         if "type" in data.keys () : self.type = data["type"]
         if "action" in data.keys () : self.action = data["action"]
