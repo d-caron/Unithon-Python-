@@ -4,7 +4,6 @@ import sys, os
 import time
 import Interpreter
 import json
-import DAO
 import Msg_manager
 
 list_of_characters = []
@@ -13,7 +12,7 @@ list_of_regions = []
 
 def wait_msg (connexion) :
     """
-    @do :       Attend un message en boucle sur la connexion passé en 
+    @do :       Attend un message en boucle sur la connexion passe en 
                 parametre et l'envoi au gestionnaire de message. 
                 Gere aussi l'extinction du serveur si elle est demande 
                 ou s'il y a une erreur.
@@ -72,12 +71,13 @@ def launch_server () :
 
     # Tant que le programme tourne
     while (keep_running) :        
-        msg = input ("Entrez votre commande ici : ")
+        msg = input ("\nEntrez votre commande ici : ")
 
         dao = Interpreter.command_interpreter(msg, list_of_characters, list_of_regions)
         if dao != None :
             dao_str = dao.serialize ()
-            Comm.send_message (connexion, dao_str)        
+            Comm.send_message (connexion, dao_str)
+            print (">>> Commande envoye avec succes ! :)")        
 
 
 if __name__ == "__main__" :

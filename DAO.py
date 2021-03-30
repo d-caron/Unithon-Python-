@@ -12,7 +12,7 @@ class DAO :
     
     def serialize (self) :
         """
-        @do :       Sérialise l'objet python au format JSON
+        @do :       Serialise l'objet python au format JSON
         @args :     None
         @return :   String -> l'objet au format JSON
         """
@@ -21,16 +21,16 @@ class DAO :
         self.world = self.world.get_dict ()
         json_str = json.dumps (self.__dict__, indent=2)
         self.world = world
-        
+
         return json_str
 
     
     def deserialize (self, json_dao) :
         """    
-        @do :       Désérialise la string au format JSON 
+        @do :       Deserialise la string au format JSON 
                     et stoque les informations dans cet objet
         @args :     String json_dao -> objet au format json
-        @return :   DAO -> L'objet est retourné
+        @return :   DAO -> L'objet est retourne
         """
 
         data = json.loads (json_dao)
