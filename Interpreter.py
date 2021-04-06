@@ -7,7 +7,7 @@ ERROR = "/!\\ "
 def command_interpreter(message, characters, regions): 
     """
     @do :       L'interpreteur de commande deconstruit le message pour
-                le transformer en objet de type DAO
+                l'interpreter et le transformer en DAO si besoin.
     @args :     String message -> commande a interpreter
                 String[] characters -> liste de IA disponibles
                 String[] regions -> liste des regions disponibles
@@ -18,54 +18,54 @@ def command_interpreter(message, characters, regions):
     list_of_characters = characters
     list_of_regions = regions
     
-    words = message.split(' ')
-    msg = build_msg (words, list_of_characters, list_of_regions)
+    params = message.split(' ')
+    msg = build_msg (params, list_of_characters, list_of_regions)
 
     return msg
 
 
-def build_msg(words, list_of_characters, list_of_regions):
+def build_msg(params, list_of_characters, list_of_regions):
     """
-    @do :       Construit le message DAO
-    @args :     String[] words -> liste des termes de la commande
+    @do :       Interprete la liste de parametre de la commande
+    @args :     String[] params -> liste des termes de la commande
                 String[] characters -> liste de IA disponibles
                 String[] regions -> liste des regions disponibles
     @return :   DAO -> message DAO si la commande est correcte
-                None -> si incorrecte
+                None -> si incorrecte ou DAO non necessaire
     """
 
     msg = DAO ()
-    msg.type = words[0]
+    msg.type = params[0]
 
-    if len(words) > 1 :
+    if len(params) > 1 :
         if msg.type == "cmd" :
-            dao = cmd_handler (words[1:], list_of_characters, list_of_regions, msg)
+            dao = cmd_handler (params[1:], list_of_characters, list_of_regions, msg)
             return [dao]
 
         elif msg.type == "sys" :
-            dao = sys_handler (words[1:], msg)
+            dao = sys_handler (params[1:], msg)
             return [dao]
 
         elif msg.type == "info" :
-            info_handler (words[1:], list_of_characters, list_of_regions)
+            info_handler (params[1:], list_of_characters, list_of_regions)
             return None
 
         elif msg.type == "run" :
-            dao_list = run_handler (words[1], list_of_characters, list_of_regions)
+            dao_list = run_handler (params[1], list_of_characters, list_of_regions)
             return dao_list
 
         elif msg.type == "help" :
-            if words[1] == "type" :
+            if params[1] == "type" :
                 show_help_type ()
-            elif words[1] == "cmd" :
+            elif params[1] == "cmd" :
                 show_help_cmd ()
-            elif words[1] == "sys" :
+            elif params[1] == "sys" :
                 show_help_sys ()
-            elif words[1] == "info" :
+            elif params[1] == "info" :
                 show_help_info ()
 
         else :
-            print (ERROR + "ERR > " + words[0] + " : Type invalide.")
+            print (ERROR + "ERR > " + params[0] + " : Type invalide.")
             print (ERROR + "Tapez \"help\" pour plus d'information")
 
     else :
@@ -79,94 +79,173 @@ def build_msg(words, list_of_characters, list_of_regions):
 
 # GESTION DES COMMANDES
 
-def cmd_handler (cmd, list_of_characters, list_of_regions, msg) :
 
-    msg.action = cmd[0]
+def cmd_handler (params, list_of_characters, list_of_regions, msg) :
+    """
+    @do :       Gère les commandes de type CMD
+    @args :     String[] params -> liste des termes de la commande
+                String[] list_of_characters 
+                    -> liste de IA disponibles
+                String[] list_of_regions 
+                    -> liste des regions disponibles
+                DAO msg -> DAO en construction
+    @return :   DAO -> message DAO si la commande est correcte
+                None -> si incorrecte
+    """
+
+    msg.action = params[0]
 
     if msg.action == "deplacer" :
-        return cmd_deplacer (cmd[1:], list_of_characters, list_of_regions, msg)
+        return cmd_deplacer (params[1:], list_of_characters, list_of_regions, msg)
         
     elif msg.action == "discuter" :
-        return cmd_discuter (cmd[1:], list_of_characters, msg)
+        return cmd_discuter (params[1:], list_of_characters, msg)
 
-    print (ERROR + "ERR > " + cmd[0] + " : Action invalide")
+    print (ERROR + "ERR > " + params[0] + " : Action invalide")
     print (ERROR + "Tapez \"help\" pour plus d'information")
 
-def sys_handler (sys, msg) :
-    msg.action = sys[0]
+
+def sys_handler (params, msg) :
+    """
+    @do :       Gère les commandes de type SYS
+    @args :     String[] params -> liste des termes de la commande
+                DAO msg -> DAO en construction
+    @return :   DAO -> message DAO si la commande est correcte
+                None -> si incorrecte
+    """
+
+    msg.action = params[0]
 
     if msg.action == "exit" :
         return msg
 
-    print (ERROR + "ERR > " + sys[0] + " : Action invalide")
+    print (ERROR + "ERR > " + params[0] + " : Action invalide")
     print (ERROR + "Tapez \"help\" pour plus d'information")
 
-def info_handler (info, list_of_characters, list_of_regions) :
-    if info[0] == "IA" :
+
+def info_handler (params, list_of_characters, list_of_regions) :
+    """
+    @do :       Gère les commandes de type INFO
+    @args :     String[] params -> liste des termes de la commande
+                String[] list_of_characters 
+                    -> liste de IA disponibles
+                String[] list_of_regions 
+                    -> liste des regions disponibles
+    @return :   None
+    """
+
+    if params[0] == "IA" :
         print (list_of_characters)
     
-    elif info[0] == "regions" :
+    elif params[0] == "regions" :
         print (list_of_regions)
 
     else : 
-        print (ERROR + "ERR > " + info[0] + " : Action invalide")
+        print (ERROR + "ERR > " + params[0] + " : Action invalide")
         print (ERROR + "Tapez \"help\" pour plus d'information")
 
+
 def run_handler (script, list_of_characters, list_of_regions) :
+    """
+    @do :       Gère les commandes de type RUN
+    @args :     String[] script -> nom du script
+                String[] list_of_characters 
+                    -> liste de IA disponibles
+                String[] list_of_regions 
+                    -> liste des regions disponibles
+    @return :   DAO [] -> Liste des DAO correspondants aux commandes a
+                l'interieur du script
+    """
+
     cmd_list = script_handler (script)
     return [
         command_interpreter (cmd, list_of_characters, list_of_regions)[0] 
         for cmd in cmd_list
     ]
 
+
 # GESTIONS : TYPE CMD
 
-def cmd_deplacer (cmd, list_of_characters, list_of_regions, msg) :
-    if len (cmd) != 2 :
+
+def cmd_deplacer (params, list_of_characters, list_of_regions, msg) :
+    """
+    @do :       Gère l'action deplacer
+    @args :     String[] params -> liste des termes de la commande
+                String[] list_of_characters 
+                    -> liste de IA disponibles
+                String[] list_of_regions 
+                    -> liste des regions disponibles
+                DAO msg -> DAO en construction
+    @return :   DAO -> message DAO si la commande est correcte
+                None -> si incorrecte
+    """
+
+    if len (params) != 2 :
         print (ERROR + "ERR > Usage : cmd deplacer <IA1> <IA2>|<region>")
     else :
-        if cmd[0] in list_of_characters :
-            msg.characters.append(cmd[0])
+        if params[0] in list_of_characters :
+            msg.characters.append(params[0])
 
-            if cmd[1] in list_of_characters :
-                msg.characters.append(cmd[1])
+            if params[1] in list_of_characters :
+                msg.characters.append(params[1])
 
                 return msg
 
-            elif cmd[1] in list_of_regions :
-                msg.world.regions.append (cmd[1])
+            elif params[1] in list_of_regions :
+                msg.world.regions.append (params[1])
 
                 return msg
             else :
-                print (ERROR + "ERR > " + cmd[1] + " : Destination non valide")
+                print (ERROR + "ERR > " + params[1] + " : Destination non valide")
                 print (ERROR + "Tapez \"info IA\" ou \"info regions\" pour obtenir les liste des destinations disponibles")
     
         else : 
-            print (ERROR + "ERR > " + cmd[0] + " : IA non valide")
+            print (ERROR + "ERR > " + params[0] + " : IA non valide")
             print (ERROR + "Tapez \"info IA\" pour obtenir les liste des IA disponibles")
 
-def cmd_discuter (cmd, list_of_characters, msg) :
-    if len (cmd) != 2 :
+
+def cmd_discuter (params, list_of_characters, msg) :
+    """
+    @do :       Gère l'action discuter
+    @args :     String[] params -> liste des termes de la commande
+                String[] list_of_characters 
+                    -> liste de IA disponibles
+                String[] list_of_regions 
+                    -> liste des regions disponibles
+                DAO msg -> DAO en construction
+    @return :   DAO -> message DAO si la commande est correcte
+                None -> si incorrecte
+    """
+
+    if len (params) != 2 :
         print (ERROR + "ERR > Usage : cmd discuter <IA1> <IA2>")
     else :
-        if cmd[0] in list_of_characters :
-            msg.characters.append(cmd[0])
+        if params[0] in list_of_characters :
+            msg.characters.append(params[0])
 
-            if cmd[1] in list_of_characters :
-                msg.characters.append(cmd[1])
+            if params[1] in list_of_characters :
+                msg.characters.append(params[1])
 
                 return msg
             else :
-                print (ERROR + "ERR > " + cmd[1] + " : IA non valide")
+                print (ERROR + "ERR > " + params[1] + " : IA non valide")
                 print (ERROR + "Tapez \"info IA\" pour obtenir les liste des IA disponibles")
     
         else : 
-            print (ERROR + "ERR > " + cmd[0] + " : IA non valide")
+            print (ERROR + "ERR > " + params[0] + " : IA non valide")
             print (ERROR + "Tapez \"info IA\" pour obtenir les liste des IA disponibles")
+
 
 # GESTIONS : TYPE HELP
 
+
 def show_help () :
+    """
+    @do :       Affiche l'aide generale
+    @args :     None
+    @return :   None
+    """
+
     print ("\nUNITHON - help : ")
     print ("USAGE : TYPE ACTION [PARAM_1 PARAM_2]")
 
@@ -174,34 +253,72 @@ def show_help () :
     show_help_cmd ()
     show_help_sys ()
     show_help_info ()
+    show_help_run ()
 
 
 def show_help_type () :
+    """
+    @do :       Affiche la categorie d'aide : TYPE
+    @args :     None
+    @return :   None
+    """
+
     print ("\n1. LES TYPES (help type) :")
     print (" - cmd permet d'envoyer une commande a une IA")
     print (" - sys permet d'utiliser une commande systeme")
     print (" - info permet d'obtenir des informations sur l'etat du monde")
+    print (" - run permet de lire un script de commande")
 
 
 def show_help_cmd () :
+    """
+    @do :       Affiche la categorie d'aide : CMD
+    @args :     None
+    @return :   None
+    """
+
     print ("\n2. CMD (help cmd) :")
     print (" - Pour deplacer une IA vers une autre IA")
-    print (" > cmd deplacer IA1 IA2")
+    print (" > cmd deplacer <IA1> <IA2>")
     print (" - Pour deplacer une IA vers une region")
-    print (" > cmd deplacer IA region")
+    print (" > cmd deplacer <IA> <region>")
     print (" - Pour faire discuter deux IA entre elles")
-    print (" > cmd discuter IA1 IA2")
+    print (" > cmd discuter <IA1> <IA2>")
 
 
 def show_help_sys () :
+    """
+    @do :       Affiche la categorie d'aide : SYS
+    @args :     None
+    @return :   None
+    """
+
     print ("\n3. SYS (help sys) :")
     print (" - Pour sortir de l'application")
     print (" > sys exit")
 
 
 def show_help_info () :
+    """
+    @do :       Affiche la categorie d'aide : INFO
+    @args :     None
+    @return :   None
+    """
+
     print ("\n4. INFO (help info) :")
     print (" - Pour obtenir la liste des IA disponibles")
     print (" > info IA")
     print (" - Pour obtenir la liste des regions disponibles")
     print (" > info regions")
+
+
+def show_help_run () :
+    """
+    @do :       Affiche la categorie d'aide : RUN
+    @args :     None
+    @return :   None
+    """
+
+    print ("\n5. RUN (help run) :")
+    print (" - Pour lancer un script")
+    print (" > run <SCRIPT>")

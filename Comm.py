@@ -2,56 +2,73 @@ from socket import *
 import DAO
 
 import sys
-# Initialise la connexion avec le client Unity
-# -> Retourne la socket du client
+
 
 def init_connexion () :
+    """
+    @do :       Initialise la connexion avec le client Unity
+    @args :     None
+    @return :   Socket -> socket du client
+    """
+
+    print ("\n4. INFO (help info) :")
+    print (" - Pour obtenir la liste des IA disponibles")
+    print (" > info IA")
+    print (" - Pour obtenir la liste des regions disponibles")
+    print (" > info regions")
 
     sock = socket (AF_INET, SOCK_STREAM)
-    sock.bind (('localhost', 1024))  # Choix du port arbitraire
-    sock.listen (1)                # Ecoute d'1 seul client
+    sock.bind (('localhost', 1024))     # Choix du port arbitraire
+    sock.listen (1)                     # Ecoute d'1 seul client
     client_socket, client_address = sock.accept ()
 
     return client_socket
 
-# -> Retourne le message reçu du client au format "string"
+
 def rcv_message (client_socket) :
+    """
+    @do :       Ecoute la socket et transforme les message reçu en DAO
+    @args :     Socket client_socket -> socket du client
+    @return :   DAO -> message reçu
+    """
+
     dao = DAO.DAO ()
 
     try:
         msg = client_socket.recv (1024).decode ()
         return dao.deserialize (msg)
     except:
-        # Si on a une erreur, c'est problablement parce que la socket est fermé, alors on simule la reception du message "Close_Unity"
+        # Si erreur : Socket ferme
+        # alors on simule la reception du message "sys exit"
         dao.type = "sys"
         dao.action = "exit"
         return dao
 
 
-# <- message : au format string
-# Envois un message au client au format "bytes"
 def send_message (client_socket, message) :
+    """
+    @do :       Envois un message au client au format "bytes"
+    @args :     Socket client_socket -> socket du client
+                String message -> message a envoyer
+    @return :   None
+    """
+    
     client_socket.send (bytes(message, encoding="utf-8"))
-    #client_socket.sendall(bytes(message,encoding="utf-8"))
 
 
-# Ferme la connexion avec le client
 def close_connexion (client_socket) :
+    """
+    @do :       Ferme la connexion avec le client
+    @args :     Socket client_socket -> socket du client
+    @return :   None
+    """
+    
     try:
         send_message(client_socket, "Close_Python")
         print("Fermeture de la socket")
         client_socket.close ()
-        # Force la fermeture du script
+        
         sys.exit(0)
     except:
-        # En ignore si la socket est déjà ferme
-        return ""
-
-#  Censé check si la connexion à la socket est fonctionnelle, mais renvoie False à chaque fois
-# def checkConnection(client_socket) :
-#     result = client_socket.connect_ex(('localhost', 1024))
-#     if result == 0:
-#         return True
-#     else:
-#         return False
-
+        # Si deja ferme, on ne fait rien
+        return

@@ -2,8 +2,21 @@ from World import World
 import json
 
 class DAO :
+    """
+    Objet intermediaire pour la communication entre python et unity
+    Chaques message doit etre envoye avec ce format
+    Chaques message reçu doit avoir ce format
+
+    @attr :     String type -> Type d'action a reealiser
+                String action -> Action a realiser
+                String[] characters -> IA impliquees dans l'action
+                World[] world 
+                    -> donnees du monde impliquees dans l'action
+    """
+
     def __init__ (self) :
         "Constcteur"
+
         self.type = None
         self.action = None
         self.characters = []
