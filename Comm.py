@@ -11,12 +11,6 @@ def init_connexion () :
     @return :   Socket -> socket du client
     """
 
-    print ("\n4. INFO (help info) :")
-    print (" - Pour obtenir la liste des IA disponibles")
-    print (" > info IA")
-    print (" - Pour obtenir la liste des regions disponibles")
-    print (" > info regions")
-
     sock = socket (AF_INET, SOCK_STREAM)
     sock.bind (('localhost', 1024))     # Choix du port arbitraire
     sock.listen (1)                     # Ecoute d'1 seul client
