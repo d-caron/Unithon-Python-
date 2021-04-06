@@ -1,0 +1,9 @@
+# Commandes Melanie
+cmd deplacer Melanie jardin
+cmd deplacer Melanie chemin
+cmd deplacer Melanie Bob
+cmd discuter Melanie Bob
+
+# Commandes Bob
+cmd deplacer Bob banc
+cmd deplacer Bob voiture
