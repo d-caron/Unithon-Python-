@@ -23,7 +23,6 @@ def wait_msg (connexion) :
     socket_is_open = True
 
     while socket_is_open :
-
         # Attente d'un message
         dao = Comm.rcv_message (connexion)
         action = Msg_manager.recv_handler (dao, list_of_characters, list_of_regions)
@@ -73,11 +72,12 @@ def launch_server () :
     while (keep_running) :        
         msg = input ("\nEntrez votre commande ici : ")
 
-        dao = Interpreter.command_interpreter(msg, list_of_characters, list_of_regions)
-        if dao != None :
-            dao_str = dao.serialize ()
-            Comm.send_message (connexion, dao_str)
-            print (">>> Commande envoye avec succes ! :)")        
+        dao_list = Interpreter.command_interpreter(msg, list_of_characters, list_of_regions)
+        if dao_list != None :
+            for dao in dao_list :
+                dao_str = dao.serialize ()
+                Comm.send_message (connexion, dao_str)
+            print (">>> Commande envoye avec succes ! :)") 
 
 
 if __name__ == "__main__" :

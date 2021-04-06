@@ -1,4 +1,5 @@
 from DAO import DAO
+from Script_handler import script_handler
 
 ERROR = "/!\\ "
 
@@ -38,13 +39,20 @@ def build_msg(words, list_of_characters, list_of_regions):
 
     if len(words) > 1 :
         if msg.type == "cmd" :
-            return cmd_handler (words[1:], list_of_characters, list_of_regions, msg)
+            dao = cmd_handler (words[1:], list_of_characters, list_of_regions, msg)
+            return [dao]
 
         elif msg.type == "sys" :
-            return sys_handler (words[1:], msg)
+            dao = sys_handler (words[1:], msg)
+            return [dao]
 
         elif msg.type == "info" :
             info_handler (words[1:], list_of_characters, list_of_regions)
+            return None
+
+        elif msg.type == "run" :
+            dao_list = run_handler (words[1], list_of_characters, list_of_regions)
+            return dao_list
 
         elif msg.type == "help" :
             if words[1] == "type" :
@@ -104,6 +112,13 @@ def info_handler (info, list_of_characters, list_of_regions) :
         print (ERROR + "ERR > " + info[0] + " : Action invalide")
         print (ERROR + "Tapez \"help\" pour plus d'information")
 
+def run_handler (script, list_of_characters, list_of_regions) :
+    cmd_list = script_handler (script)
+    return [
+        command_interpreter (cmd, list_of_characters, list_of_regions)[0] 
+        for cmd in cmd_list
+    ]
+
 # GESTIONS : TYPE CMD
 
 def cmd_deplacer (cmd, list_of_characters, list_of_regions, msg) :
@@ -149,7 +164,7 @@ def cmd_discuter (cmd, list_of_characters, msg) :
             print (ERROR + "ERR > " + cmd[0] + " : IA non valide")
             print (ERROR + "Tapez \"info IA\" pour obtenir les liste des IA disponibles")
 
-# GESTIONS : TYPE CMD
+# GESTIONS : TYPE HELP
 
 def show_help () :
     print ("\nUNITHON - help : ")
