@@ -3,27 +3,29 @@ from DAO import DAO
 ERROR = "/!\\ "
 
 
-def command_interpreter(message, characters, regions): 
+def command_interpreter(message, characters, regions, worlds): 
     """
     @do :       L'interpreteur de commande deconstruit le message pour
                 le transformer en objet de type DAO
     @args :     String message -> commande a interpreter
                 String[] characters -> liste de IA disponibles
                 String[] regions -> liste des regions disponibles
+                String[] worlds -> liste des mondes disponibles
     @return :   DAO -> commande interprete au format DAO si correcte
                 None -> si incorrecte
     """
     
     list_of_characters = characters
     list_of_regions = regions
+    list_of_worlds = worlds
     
     words = message.split(' ')
-    msg = build_msg (words, list_of_characters, list_of_regions)
+    msg = build_msg (words, list_of_characters, list_of_regions, list_of_worlds)
 
     return msg
 
 
-def build_msg(words, list_of_characters, list_of_regions):
+def build_msg(words, list_of_characters, list_of_regions, list_of_worlds):
     """
     @do :       Construit le message DAO
     @args :     String[] words -> liste des termes de la commande
@@ -41,10 +43,10 @@ def build_msg(words, list_of_characters, list_of_regions):
             return cmd_handler (words[1:], list_of_characters, list_of_regions, msg)
 
         elif msg.type == "sys" :
-            return sys_handler (words[1:], msg)
+            return sys_handler (words[1:], msg, list_of_worlds)
 
         elif msg.type == "info" :
-            info_handler (words[1:], list_of_characters, list_of_regions)
+            info_handler (words[1:], list_of_characters, list_of_regions ,list_of_worlds)
 
         elif msg.type == "help" :
             if words[1] == "type" :
@@ -84,21 +86,27 @@ def cmd_handler (cmd, list_of_characters, list_of_regions, msg) :
     print (ERROR + "ERR > " + cmd[0] + " : Action invalide")
     print (ERROR + "Tapez \"help\" pour plus d'information")
 
-def sys_handler (sys, msg) :
+def sys_handler (sys, msg, list_of_worlds) :
     msg.action = sys[0]
 
     if msg.action == "exit" :
         return msg
 
+    elif msg.action == "load" :
+        return sys_load(sys[1:], msg, list_of_worlds)
+    
     print (ERROR + "ERR > " + sys[0] + " : Action invalide")
     print (ERROR + "Tapez \"help\" pour plus d'information")
 
-def info_handler (info, list_of_characters, list_of_regions) :
+def info_handler (info, list_of_characters, list_of_regions, list_of_worlds) :
     if info[0] == "IA" :
         print (list_of_characters)
     
     elif info[0] == "regions" :
         print (list_of_regions)
+
+    elif info[0] == "mondes" :
+        print (list_of_worlds)    
 
     else : 
         print (ERROR + "ERR > " + info[0] + " : Action invalide")
@@ -149,7 +157,20 @@ def cmd_discuter (cmd, list_of_characters, msg) :
             print (ERROR + "ERR > " + cmd[0] + " : IA non valide")
             print (ERROR + "Tapez \"info IA\" pour obtenir les liste des IA disponibles")
 
-# GESTIONS : TYPE CMD
+# GESTIONS : TYPE SYS
+
+def sys_load (sys, msg, list_of_worlds):
+
+    if len(sys) != 1 :
+        print (ERROR + "ERR > Usage : sys load <monde>")
+    else :
+            if sys[0] in list_of_worlds:
+                msg.world.id = sys[0]
+                return msg
+            else :
+                print(ERROR + "ERR > "+ sys[0] +" : monde non valide")
+                print (ERROR + "Tapez \"info mondes\" pour obtenir les liste des IA disponibles")
+        
 
 def show_help () :
     print ("\nUNITHON - help : ")
@@ -182,6 +203,8 @@ def show_help_sys () :
     print ("\n3. SYS (help sys) :")
     print (" - Pour sortir de l'application")
     print (" > sys exit")
+    print (" - Pour charger un autre monde ")
+    print (" > sys load <monde>")
 
 
 def show_help_info () :
@@ -190,3 +213,5 @@ def show_help_info () :
     print (" > info IA")
     print (" - Pour obtenir la liste des regions disponibles")
     print (" > info regions")
+    print (" - Pour obtenir la liste des modnes disponibles")
+    print (" > info mondes")

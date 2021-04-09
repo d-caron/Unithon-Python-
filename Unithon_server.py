@@ -8,6 +8,7 @@ import Msg_manager
 
 list_of_characters = []
 list_of_regions = []
+list_of_worlds = []
 
 
 def wait_msg (connexion) :
@@ -26,7 +27,7 @@ def wait_msg (connexion) :
 
         # Attente d'un message
         dao = Comm.rcv_message (connexion)
-        action = Msg_manager.recv_handler (dao, list_of_characters, list_of_regions)
+        action = Msg_manager.recv_handler (dao, list_of_characters, list_of_regions, list_of_worlds)
 
         # ACTION : Fermeture de l'application
         if (action == "exit"):
@@ -73,11 +74,11 @@ def launch_server () :
     while (keep_running) :        
         msg = input ("\nEntrez votre commande ici : ")
 
-        dao = Interpreter.command_interpreter(msg, list_of_characters, list_of_regions)
+        dao = Interpreter.command_interpreter(msg, list_of_characters, list_of_regions, list_of_worlds)
         if dao != None :
             dao_str = dao.serialize ()
             Comm.send_message (connexion, dao_str)
-            print (">>> Commande envoye avec succes ! :)")        
+            print (">>> Commande envoyée avec succes ! :)")        
 
 
 if __name__ == "__main__" :
