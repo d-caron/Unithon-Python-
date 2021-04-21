@@ -158,10 +158,13 @@ def run_handler (script, list_of_characters, list_of_regions) :
     """
 
     cmd_list = script_handler (script)
-    return [
-        command_interpreter (cmd, list_of_characters, list_of_regions)[0] 
-        for cmd in cmd_list
-    ]
+    if isinstance (cmd_list, list) :
+        return [
+            command_interpreter (cmd, list_of_characters, list_of_regions)[0] 
+            for cmd in cmd_list
+        ]
+
+    return None
 
 
 # GESTIONS : TYPE CMD

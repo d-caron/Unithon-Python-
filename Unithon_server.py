@@ -5,6 +5,7 @@ import time
 import Interpreter
 import json
 import Msg_manager
+from DAO import DAO
 
 list_of_characters = []
 list_of_regions = []
@@ -73,11 +74,22 @@ def launch_server () :
         msg = input ("\nEntrez votre commande ici : ")
 
         dao_list = Interpreter.command_interpreter(msg, list_of_characters, list_of_regions)
-        if dao_list != None :
+        if isinstance (dao_list, list) :
+            nb_sendt = 0
+            dao_str = ""
             for dao in dao_list :
-                dao_str = dao.serialize ()
-                Comm.send_message (connexion, dao_str)
-            print (">>> Commande envoye avec succes ! :)") 
+                if isinstance (dao, DAO) :
+                    dao_str += dao.serialize ()
+                    nb_sendt += 1
+            
+            Comm.send_message (connexion, dao_str)
+
+            if nb_sendt == 1 :
+                print (">>> 1 commande envoyee avec succes ! :)") 
+            elif nb_sendt > 1 :
+                print (">>> " + str(nb_sendt) + " commandes envoyees avec succes ! :)")
+            else :
+                print (">>> Il n'y a aucune commande à envoyer... :'(")
 
 
 if __name__ == "__main__" :
